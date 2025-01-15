@@ -1,8 +1,8 @@
-import Signup from "./components/signup";
+import ChatPage from "./components/chatpage";
 function App() {
   return (
     <div>
-      <Signup />
+      <ChatPage/>
     </div>
   );
 }
