@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   FaPaperclip,
   FaSmile,
@@ -29,6 +29,16 @@ const ChatContent = ({
   setShowDropUpMenu,
   showDropUpMenu,
 }) => {
+  const fileInputRef = useRef(null);
+  const documentInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMessage([...messages, `${file.name}`]);
+    }
+  };
+
   return (
     <div
       className={`flex-1 ${
@@ -73,22 +83,44 @@ const ChatContent = ({
               >
                 <div
                   className="flex items-center text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
-                  onClick={() => console.log("Photos and Videos")}
+                  onClick={() => fileInputRef.current.click()}
                 >
                   <FaImage className="mr-2" /> Photos and Videos
                 </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*,video/*"
+                  style={{ display: "none" }}
+                  onChange={handleFileSelect}
+                />
                 <div
                   className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer text-sm"
-                  onClick={() => console.log("Documents")}
+                  onClick={() => documentInputRef.current.click()}
                 >
                   <FaFileAlt className="mr-2" /> Documents
                 </div>
+                <input
+                  type="file"
+                  ref={documentInputRef}
+                  accept=".pdf,.doc,.docx,.txt"
+                  style={{ display: "none" }}
+                  onChange={handleFileSelect}
+                />
                 <div
                   className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer text-sm"
-                  onClick={() => console.log("Camera")}
+                  onClick={() => cameraInputRef.current.click()}
                 >
                   <FaCamera className="mr-2" /> Camera
                 </div>
+                <input
+                  type="file"
+                  ref={cameraInputRef}
+                  accept="image/*"
+                  capture="environment"
+                  style={{ display: "none" }}
+                  onChange={handleFileSelect}
+                />
               </div>
             )}
             <button
@@ -116,13 +148,13 @@ const ChatContent = ({
             />
             <button
               onClick={
-                message.trim()
+                message && message.trim() // Check that message is not null/undefined and has a value
                   ? () => setMessages([...messages, message])
                   : undefined
               }
               className="text-gray-400 text-xl"
             >
-              {message.trim() ? <FaPaperPlane /> : <FaMicrophone />}
+              {message && message.trim() ? <FaPaperPlane /> : <FaMicrophone />}
             </button>
           </div>
         </div>
