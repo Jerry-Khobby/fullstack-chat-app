@@ -1,10 +1,13 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import {
   FaPaperclip,
   FaSmile,
   FaPaperPlane,
   FaMicrophone,
   FaChevronLeft,
+  FaImage,
+  FaFileAlt,
+  FaCamera,
 } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
 import "./chatpage.css";
@@ -21,6 +24,10 @@ const ChatContent = ({
   emojiPickerRef,
   emojiButtonRef,
   handleEmojiClick,
+  dropUpShare,
+  dropUpShareRef,
+  setShowDropUpMenu,
+  showDropUpMenu,
 }) => {
   return (
     <div
@@ -51,10 +58,39 @@ const ChatContent = ({
             ))}
           </div>
 
-          <div className="p-4 border-t border-gray-700 flex items-center space-x-2">
-            <button className="text-gray-400 text-xl">
+          <div className="p-4 border-t border-gray-700 flex items-center space-x-2 relative">
+            <button
+              className="text-gray-400 text-xl"
+              onClick={() => setShowDropUpMenu(!showDropUpMenu)}
+              ref={dropUpShare}
+            >
               <FaPaperclip />
             </button>
+            {showDropUpMenu && (
+              <div
+                ref={dropUpShareRef}
+                className="absolute bottom-16 left-0 bg-gray-700 rounded-lg shadow-lg w-56 p-2 space-y-2 z-50"
+              >
+                <div
+                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
+                  onClick={() => console.log("Photos and Videos")}
+                >
+                  <FaImage className="mr-2" /> Photos and Videos
+                </div>
+                <div
+                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
+                  onClick={() => console.log("Documents")}
+                >
+                  <FaFileAlt className="mr-2" /> Documents
+                </div>
+                <div
+                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
+                  onClick={() => console.log("Camera")}
+                >
+                  <FaCamera className="mr-2" /> Camera
+                </div>
+              </div>
+            )}
             <button
               ref={emojiButtonRef}
               className="text-gray-400 text-xl"
