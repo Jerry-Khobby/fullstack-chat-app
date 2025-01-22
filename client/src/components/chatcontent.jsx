@@ -72,19 +72,19 @@ const ChatContent = ({
                 className="absolute bottom-16 left-0 bg-gray-700 rounded-lg shadow-lg w-56 p-2 space-y-2 z-50"
               >
                 <div
-                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
+                  className="flex items-center text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
                   onClick={() => console.log("Photos and Videos")}
                 >
                   <FaImage className="mr-2" /> Photos and Videos
                 </div>
                 <div
-                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
+                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer text-sm"
                   onClick={() => console.log("Documents")}
                 >
                   <FaFileAlt className="mr-2" /> Documents
                 </div>
                 <div
-                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer"
+                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer text-sm"
                   onClick={() => console.log("Camera")}
                 >
                   <FaCamera className="mr-2" /> Camera
