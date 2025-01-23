@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   FaPaperclip,
   FaSmile,
@@ -8,6 +8,7 @@ import {
   FaImage,
   FaFileAlt,
   FaCamera,
+  FaTimes,
 } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
 import "./chatpage.css";
@@ -31,12 +32,21 @@ const ChatContent = ({
 }) => {
   const fileInputRef = useRef(null);
   const documentInputRef = useRef(null);
-  const cameraInputRef = useRef(null);
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null); // To store file preview URL
+
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setMessages((prevMessages) => [...prevMessages, file.name]);
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file)); // Generate a preview URL
     }
+  };
+
+  const cancelFile = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null); // Clear the preview URL
   };
 
   return (
@@ -67,6 +77,40 @@ const ChatContent = ({
               </p>
             ))}
           </div>
+
+          {/* Preview Section */}
+          {previewUrl && (
+            <div className="relative p-4 bg-gray-700 border-t border-gray-600">
+              <button
+                className="absolute top-2 right-2 text-white bg-gray-800 p-1 rounded-full hover:bg-gray-600"
+                onClick={cancelFile}
+              >
+                <FaTimes />
+              </button>
+              <div className="flex items-center justify-center w-full">
+                {selectedFile.type.startsWith("image/") && (
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full max-h-96 object-contain rounded-lg"
+                  />
+                )}
+                {selectedFile.type.startsWith("video/") && (
+                  <video
+                    src={previewUrl}
+                    className="w-full max-h-96 rounded-lg"
+                    controls
+                  />
+                )}
+                {selectedFile.type.startsWith("application/") && (
+                  <div className="text-white text-sm">
+                    <FaFileAlt className="text-gray-400 text-3xl mx-auto" />
+                    <p className="text-center mt-2">{selectedFile.name}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="p-4 border-t border-gray-700 flex items-center space-x-2 relative">
             <button
@@ -107,20 +151,6 @@ const ChatContent = ({
                   style={{ display: "none" }}
                   onChange={handleFileSelect}
                 />
-                <div
-                  className="flex items-center text-white px-4 py-2 rounded-lg hover:bg-gray-600 cursor-pointer text-sm"
-                  onClick={() => cameraInputRef.current.click()}
-                >
-                  <FaCamera className="mr-2" /> Camera
-                </div>
-                <input
-                  type="file"
-                  ref={cameraInputRef}
-                  accept="image/*"
-                  capture="environment"
-                  style={{ display: "none" }}
-                  onChange={handleFileSelect}
-                />
               </div>
             )}
             <button
@@ -150,12 +180,19 @@ const ChatContent = ({
               onClick={() => {
                 if (message.trim()) {
                   setMessages((prevMessages) => [...prevMessages, message]);
-                  setMessage(""); // Clear the input field after sending
+                  setMessage("");
+                  if (selectedFile) {
+                    setMessages((prevMessages) => [
+                      ...prevMessages,
+                      selectedFile.name,
+                    ]);
+                    cancelFile();
+                  }
                 }
               }}
               className="text-gray-400 text-xl"
             >
-              {message.trim() ? <FaPaperPlane /> : <FaMicrophone />}
+              <FaPaperPlane />
             </button>
           </div>
         </div>
