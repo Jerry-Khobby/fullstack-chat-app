@@ -34,19 +34,55 @@ const ChatContent = ({
   const documentInputRef = useRef(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null); // To store file preview URL
-
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const formatFileSize = (size) => {
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    if (size === 0) return "0 Bytes";
+    const i = Math.floor(Math.log(size) / Math.log(1024));
+    return `${(size / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+  };
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file)); // Generate a preview URL
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const cancelFile = () => {
     setSelectedFile(null);
-    setPreviewUrl(null); // Clear the preview URL
+    setPreviewUrl(null);
+  };
+
+  const handleSend = () => {
+    if (message.trim() || selectedFile) {
+      const newMessages = [...messages];
+
+      // Add media file with optional caption
+      if (selectedFile) {
+        const fileType = selectedFile.type.startsWith("image/")
+          ? "image"
+          : selectedFile.type.startsWith("video/")
+          ? "video"
+          : "file";
+
+        newMessages.push({
+          type: fileType,
+          content: previewUrl,
+          caption: message.trim() || null,
+          name: selectedFile.name, // Optional for files
+        });
+
+        cancelFile();
+        setMessage(""); // Clear input
+      } else if (message.trim()) {
+        // Add text-only message
+        newMessages.push({ type: "text", content: message.trim() });
+        setMessage("");
+      }
+
+      setMessages(newMessages);
+    }
   };
 
   return (
@@ -57,6 +93,7 @@ const ChatContent = ({
     >
       {activeChat ? (
         <div className="h-full flex flex-col">
+          {/* Chat Header */}
           <div className="p-4 border-b border-gray-700 flex items-center justify-between">
             <h2 className="text-lg font-bold">{activeChat}</h2>
             <button
@@ -67,18 +104,60 @@ const ChatContent = ({
             </button>
           </div>
 
-          <div className="flex-1 p-4 overflow-y-auto">
+          {/* Chat Messages */}
+          <div className="flex-1 p-4 overflow-y-auto ">
             {messages.map((msg, index) => (
-              <p
-                key={index}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-2 w-fit"
-              >
-                {msg}
-              </p>
+              <div key={index} className="mb-4 flex items-right justify-end">
+                {msg.type === "text" && (
+                  <p className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    {msg.content}
+                  </p>
+                )}
+                {msg.type === "image" && (
+                  <div className="space-y-2">
+                    <img
+                      src={msg.content}
+                      alt="Sent"
+                      className="w-40 h-40 object-cover rounded-lg"
+                    />
+                    {msg.caption && (
+                      <p className="text-sm text-gray-300">{msg.caption}</p>
+                    )}
+                  </div>
+                )}
+                {msg.type === "video" && (
+                  <div className="space-y-2">
+                    <video
+                      src={msg.content}
+                      className="w-40 h-40 rounded-lg"
+                      controls
+                    />
+                    {msg.caption && (
+                      <p className="text-sm text-gray-300">{msg.caption}</p>
+                    )}
+                  </div>
+                )}
+                {msg.type === "file" && (
+                  <div className="flex flex-col  space-y-2">
+                    <a
+                      href={msg.content}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-gray-700 w-48 h-24 flex items-center justify-center rounded-lg cursor-pointer"
+                    >
+                      <FaFileAlt className="text-white text-2xl" />
+                    </a>
+                    <h3 className="text-sm font-mono">{msg.name}</h3>
+                    {msg.caption && (
+                      <p className="text-sm text-gray-300">{msg.caption}</p>
+                    )}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
-          {/* Preview Section */}
+          {/* File Preview */}
           {previewUrl && (
             <div className="relative p-4 bg-gray-700 border-t border-gray-600">
               <button
@@ -102,16 +181,21 @@ const ChatContent = ({
                     controls
                   />
                 )}
-                {selectedFile.type.startsWith("application/") && (
-                  <div className="text-white text-sm">
-                    <FaFileAlt className="text-gray-400 text-3xl mx-auto" />
-                    <p className="text-center mt-2">{selectedFile.name}</p>
-                  </div>
-                )}
+                {!selectedFile.type.startsWith("image/") &&
+                  !selectedFile.type.startsWith("video/") && (
+                    <div className="text-white flex flex-col items-center space-y-2">
+                      <FaFileAlt className="text-4xl" />
+                      <p className="text-sm">{selectedFile.name}</p>
+                      <p className="text-xs text-gray-400">
+                        {formatFileSize(selectedFile.size)}
+                      </p>
+                    </div>
+                  )}
               </div>
             </div>
           )}
 
+          {/* Message Input */}
           <div className="p-4 border-t border-gray-700 flex items-center space-x-2 relative">
             <button
               className="text-gray-400 text-xl"
@@ -176,22 +260,7 @@ const ChatContent = ({
               placeholder="Type a message"
               className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none"
             />
-            <button
-              onClick={() => {
-                if (message.trim()) {
-                  setMessages((prevMessages) => [...prevMessages, message]);
-                  setMessage("");
-                  if (selectedFile) {
-                    setMessages((prevMessages) => [
-                      ...prevMessages,
-                      selectedFile.name,
-                    ]);
-                    cancelFile();
-                  }
-                }
-              }}
-              className="text-gray-400 text-xl"
-            >
+            <button onClick={handleSend} className="text-gray-400 text-xl">
               <FaPaperPlane />
             </button>
           </div>
