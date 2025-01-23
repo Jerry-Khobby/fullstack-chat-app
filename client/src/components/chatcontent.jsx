@@ -35,7 +35,7 @@ const ChatContent = ({
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setMessage([...messages, `${file.name}`]);
+      setMessages((prevMessages) => [...prevMessages, file.name]);
     }
   };
 
@@ -147,14 +147,15 @@ const ChatContent = ({
               className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none"
             />
             <button
-              onClick={
-                message && message.trim() // Check that message is not null/undefined and has a value
-                  ? () => setMessages([...messages, message])
-                  : undefined
-              }
+              onClick={() => {
+                if (message.trim()) {
+                  setMessages((prevMessages) => [...prevMessages, message]);
+                  setMessage(""); // Clear the input field after sending
+                }
+              }}
               className="text-gray-400 text-xl"
             >
-              {message && message.trim() ? <FaPaperPlane /> : <FaMicrophone />}
+              {message.trim() ? <FaPaperPlane /> : <FaMicrophone />}
             </button>
           </div>
         </div>
