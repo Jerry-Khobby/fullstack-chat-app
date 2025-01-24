@@ -7,11 +7,11 @@ import {
   FaChevronLeft,
   FaImage,
   FaFileAlt,
-  FaCamera,
   FaTimes,
 } from "react-icons/fa";
 import EmojiPicker from "emoji-picker-react";
 import "./chatpage.css";
+import { ReactMediaRecorder } from "react-media-recorder";
 
 const ChatContent = ({
   activeChat,
@@ -32,6 +32,8 @@ const ChatContent = ({
 }) => {
   const fileInputRef = useRef(null);
   const documentInputRef = useRef(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedAudio, setRecordedAudio] = useState(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -58,6 +60,15 @@ const ChatContent = ({
     if (message.trim() || selectedFile) {
       const newMessages = [...messages];
 
+      if (recordedAudio) {
+        newMessages.push({
+          type: "audio",
+          content: recordedAudio,
+          caption: message.trim() || null,
+        });
+        setRecordedAudio(null);
+        setMessages(newMessages);
+      }
       // Add media file with optional caption
       if (selectedFile) {
         const fileType = selectedFile.type.startsWith("image/")
@@ -83,6 +94,25 @@ const ChatContent = ({
 
       setMessages(newMessages);
     }
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && (message.trim() || recordedAudio)) {
+      event.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleAudioStop = (blobUrl) => {
+    setRecordedAudio(blobUrl);
+    setIsRecording(false);
+
+    // Add audio to messages
+    const newMessages = [
+      ...messages,
+      { type: "audio", content: blobUrl, caption: null },
+    ];
+    setMessages(newMessages);
   };
 
   return (
@@ -137,6 +167,12 @@ const ChatContent = ({
                       <p className="text-sm text-gray-300">{msg.caption}</p>
                     )}
                   </div>
+                )}
+                {msg.type === "audio" && (
+                  <audio controls className="w-40 h-10 rounded-lg">
+                    <source src={msg.content} type="audio/wav" />
+                    Your browser does not support the audio element.
+                  </audio>
                 )}
                 {msg.type === "file" && (
                   <div className="flex flex-col  space-y-2">
@@ -259,11 +295,38 @@ const ChatContent = ({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message"
-              className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none"
+              className="flex-1 px-4 py-2  text-sm bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none"
+              onKeyDown={handleKeyPress}
             />
-            <button onClick={handleSend} className="text-gray-400 text-xl">
-              <FaPaperPlane />
-            </button>
+            {message.trim() ? (
+              <button onClick={handleSend} className="text-gray-400 text-xl">
+                <FaPaperPlane />
+              </button>
+            ) : (
+              <ReactMediaRecorder
+                audio
+                render={({ startRecording, stopRecording }) => (
+                  <>
+                    <button
+                      onClick={() => {
+                        if (!isRecording) {
+                          setIsRecording(true);
+                          startRecording();
+                        } else {
+                          stopRecording();
+                        }
+                      }}
+                      className="text-gray-400 text-xl"
+                    >
+                      <FaMicrophone
+                        className={isRecording ? "text-red-500" : ""}
+                      />
+                    </button>
+                  </>
+                )}
+                onStop={handleAudioStop}
+              ></ReactMediaRecorder>
+            )}
           </div>
         </div>
       ) : (
