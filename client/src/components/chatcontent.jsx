@@ -107,10 +107,11 @@ const ChatContent = ({
           {/* Chat Messages */}
           <div className="flex-1 p-4 overflow-y-auto ">
             {messages.map((msg, index) => (
-              <div key={index} className="mb-4 flex items-right justify-end">
+              <div key={index} className="mb-3 flex items-right justify-end">
                 {msg.type === "text" && (
-                  <p className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                  <p className="bg-gray-700 text-white px-4 text-sm py-1 rounded-tl-lg rounded-bl-lg rounded-tr-[20px] max-w-xs ">
                     {msg.content}
+                    {/**rounded-tr-lg rounded-br-lg rounded-tl-[20px] */}
                   </p>
                 )}
                 {msg.type === "image" && (
