@@ -6,7 +6,6 @@ class AppUser(AbstractUser):
     GENDER_CHOICES = [
         ('male', 'Male'),
         ('female', 'Female'),
-        ('other', 'Other'),
     ]
     username=models.CharField(max_length=255,unique=False,blank=False)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
