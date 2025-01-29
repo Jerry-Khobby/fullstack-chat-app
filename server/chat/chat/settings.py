@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'home',
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -71,15 +73,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'chat.wsgi.application'
 
-
+import os
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+#DATABASES = {
+    #'default': {
+      #'ENGINE': 'django.db.backends.sqlite3',
+   #'NAME': BASE_DIR / 'db.sqlite3',
+#}
+#} 
+
 DATABASES = {
     'default': {
-      'ENGINE': 'django.db.backends.sqlite3',
-   'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Use the PostgreSQL engine
+        'NAME': 'ChatApp',  # Your database name (replace with your actual database name)
+        'USER': 'postgres',  # Your PostgreSQL username
+        'PASSWORD': '1234',  # Your PostgreSQL password
+        'HOST': 'localhost',  # If using a remote database, replace with the host's address (e.g., 'db.tfkztmarydetbqadzvww.supabase.co')
+        'PORT': '5432',  # The default PostgreSQL port
+    }
 }
-} 
+
 
 
 
@@ -122,9 +136,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Chat App",
+    "site_header": "Chat App Home",
+    "site_brand": "Chat App",
+}
