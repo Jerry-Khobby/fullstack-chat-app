@@ -149,7 +149,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Chat App",
+    "site_title": "Chat App Home",
     "site_header": "Chat App Home",
     "site_brand": "Chat App",
 }
