@@ -23,7 +23,7 @@ class LoginUserView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
-    
-    
+
+
 #The next is to start initializing websocket connections for the chat apps 
 #I will start by creating a websocket consumer for the chat app
