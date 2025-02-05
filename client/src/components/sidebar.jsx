@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaPhoneAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
@@ -10,6 +10,13 @@ const Sidebar = ({
   activeChat,
   setActiveChat,
 }) => {
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/users/")
+      .then((response) => response.json())
+      .then((data) => setUsers(data))
+      .catch((error) => console.error("Error fetching users:", error));
+  }, []);
   return (
     <div
       className={`${
@@ -34,33 +41,38 @@ const Sidebar = ({
         </div>
 
         <ul className="flex-1 overflow-y-auto hide-scrollbar border-r border-gray-700">
-          {Array.from({ length: 20 }, (_, index) => (
-            <li
-              key={index}
-              onClick={() => {
-                setActiveChat(`Chat ${index + 1}`);
-              }}
-              className="p-4 cursor-pointer hover:bg-gray-700"
-            >
-              <div className="flex items-center space-x-3">
-                <Tippy content={`User ${index + 1}`}>
-                  <div className="w-10 h-10 bg-gray-400 rounded-full overflow-hidden">
-                    <img
-                      src="https://via.placeholder.com/100"
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </Tippy>
-                {!isLeftCollapsed && (
-                  <div>
-                    <p className="font-semibold">User {index + 1}</p>
-                    <p className="text-sm text-gray-400">Last message...</p>
-                  </div>
-                )}
-              </div>
-            </li>
-          ))}
+          {users.length > 0 ? (
+            users.map((user) => (
+              <li
+                key={user.id}
+                onClick={() => setActiveChat(user.username)}
+                className="p-4 cursor-pointer hover:bg-gray-700"
+              >
+                <div className="flex items-center space-x-3">
+                  <Tippy content={user.username}>
+                    <div className="w-10 h-10 bg-gray-400 rounded-full overflow-hidden">
+                      <img
+                        src={
+                          user.profile_picture ||
+                          "https://via.placeholder.com/100"
+                        }
+                        alt={user.username}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Tippy>
+                  {!isLeftCollapsed && (
+                    <div>
+                      <p className="font-semibold">{user.username}</p>
+                      <p className="text-sm text-gray-400">Last message...</p>
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))
+          ) : (
+            <p className="text-gray-400 p-4">No users found</p>
+          )}
         </ul>
       </div>
     </div>
