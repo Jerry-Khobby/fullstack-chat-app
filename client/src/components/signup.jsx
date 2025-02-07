@@ -3,14 +3,15 @@ import React, { useState } from "react";
 const Signup = () => {
   const [formData, setFormData] = useState({
     username: "",
-    profilePicture: null,
-    dateOfBirth: "",
+    profile_picture: null,
+    date_of_birth: "",
     email: "",
     gender: "",
     password: "",
     confirmPassword: "",
   });
-
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData({
@@ -19,14 +20,58 @@ const Signup = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    // Add your signup logic here
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setMessage({ type: "error", text: "Passwords do not match!" });
       return;
     }
-    console.log("Form Data Submitted:", formData);
-    // Add your signup logic here
+    setLoading(true);
+    setMessage(null);
+    const data = new FormData();
+    data.append("username", formData.username);
+    data.append("profile_picture", formData.profile_picture);
+    data.append("date_of_birth", formData.date_of_birth);
+    data.append("email", formData.email);
+    data.append("password", formData.password);
+    data.append("gender", formData.gender);
+    try {
+      const response = await fetch("http://127.0.0.1:8000/signup/", {
+        method: "POST",
+        body: data,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage({
+          type: "success",
+          text: result.message?.toString() || "Signup successful!",
+        });
+        setFormData({
+          username: "",
+          profilePicture: null,
+          dateOfBirth: "",
+          email: "",
+          gender: "",
+          password: "",
+          confirmPassword: "",
+        });
+      } else {
+        setMessage({
+          type: "error",
+          text: result.error?.toString() || "Signup failed!",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "Something went wrong. Please try again.",
+      });
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -42,6 +87,18 @@ const Signup = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Signup
         </h2>
+        {message && (
+          <div
+            className={`mb-4 p-3 rounded ${
+              message.type === "error"
+                ? "bg-red-100 text-red-700"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
@@ -69,24 +126,24 @@ const Signup = () => {
             </label>
             <input
               type="file"
-              id="profilePicture"
-              name="profilePicture"
+              id="profile_picture"
+              name="profile_picture"
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="mb-4">
             <label
-              htmlFor="dateOfBirth"
+              htmlFor="date_of_birth"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               Date of Birth
             </label>
             <input
               type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
+              id="date_of_birth"
+              name="date_of_birth"
+              value={formData.date_of_birth}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -168,7 +225,11 @@ const Signup = () => {
             type="submit"
             className="w-full px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
           >
-            Signup
+            {loading ? (
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            ) : (
+              "Signup"
+            )}
           </button>
         </form>
         <div className="mt-6 text-sm text-center text-gray-600">

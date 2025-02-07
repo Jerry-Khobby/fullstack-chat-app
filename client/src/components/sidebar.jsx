@@ -3,7 +3,7 @@ import { FaPhoneAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import "./chatpage.css";
-
+import backendUrl from "./backendUrl";
 const Sidebar = ({
   isLeftCollapsed,
   setIsLeftCollapsed,
@@ -12,7 +12,7 @@ const Sidebar = ({
 }) => {
   const [users, setUsers] = useState([]);
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/users/")
+    fetch(`${backendUrl}/users/`)
       .then((response) => response.json())
       .then((data) => setUsers(data))
       .catch((error) => console.error("Error fetching users:", error));
