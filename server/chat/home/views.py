@@ -11,9 +11,9 @@ class RegisterUserView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()  # Serializer will hash the password
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response({"message": "Signup successful!"},status=status.HTTP_201_CREATED)
+        return Response({"error": serializer.errors},status=status.HTTP_400_BAD_REQUEST)
     
 #I want to write the logic for loggin 
 class LoginUserView(generics.GenericAPIView):
@@ -24,6 +24,9 @@ class LoginUserView(generics.GenericAPIView):
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
-
+#get all the data from all the users 
+class UserListView(generics.ListAPIView):
+    queryset = AppUser.objects.all()
+    serializer_class = UserSerializer
 #The next is to start initializing websocket connections for the chat apps 
 #I will start by creating a websocket consumer for the chat app

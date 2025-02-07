@@ -7,4 +7,5 @@ urlpatterns = [
     #start to define the urls for the cake app 
     path("signup/",RegisterUserView.as_view(),name="create_user"),
     path("login/",LoginUserView.as_view(),name="login_user"),
+    path("users/",UserListView.as_view(),name="users"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
