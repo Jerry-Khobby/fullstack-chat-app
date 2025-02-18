@@ -1,20 +1,48 @@
 import React, { useState } from "react";
+import backendUrl from "./backendUrl";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    // Add your login logic here
+    setError("");
+    setSuccess("");
+    setLoading(true);
+    try {
+      const response = await fetch(`${backendUrl}/login/`, {
+        method: "POST",
+        headers: {
+          "content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess(data.message);
+        setFormData({ email: "", password: "" });
+        localStorage.setItem("token", data.token);
+        navigate("/chat");
+      } else {
+        setError(data.detail || "Invalid credentials");
+      }
+    } catch (e) {
+      setError("An error occurred. Please try again later.");
+    }
+    setLoading(false);
   };
 
   return (
@@ -30,6 +58,8 @@ const Login = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Login
         </h2>
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {success && <p className="text-green-500 text-sm mb-4">{success}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
@@ -67,24 +97,20 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 flex items-center justify-center"
           >
-            Login
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
         <div className="mt-6 text-sm text-center text-gray-600">
           <p>
             Don't have an account?{" "}
-            <a href="/signup" className="text-green-500 hover:underline">
+            <a href="/" className="text-green-500 hover:underline">
               Signup
-            </a>
-          </p>
-          <p className="mt-2">
-            <a
-              href="/forgot-password"
-              className="text-green-500 hover:underline"
-            >
-              Forgotten password?
             </a>
           </p>
         </div>

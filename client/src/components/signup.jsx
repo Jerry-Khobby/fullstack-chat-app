@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import backendUrl from "./backendUrl";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Signup = () => {
     data.append("password", formData.password);
     data.append("gender", formData.gender);
     try {
-      const response = await fetch("http://127.0.0.1:8000/signup/", {
+      const response = await fetch(`${backendUrl}/signup/`, {
         method: "POST",
         body: data,
       });
@@ -225,7 +226,7 @@ const Signup = () => {
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 flex items-center justify-center"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
