@@ -28,5 +28,3 @@ class LoginUserView(generics.GenericAPIView):
 class UserListView(generics.ListAPIView):
     queryset = AppUser.objects.all()
     serializer_class = UserSerializer
-#The next is to start initializing websocket connections for the chat apps 
-#I will start by creating a websocket consumer for the chat app

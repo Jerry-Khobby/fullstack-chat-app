@@ -25,10 +25,10 @@ class LoginSerializer(serializers.Serializer):
         try:
             user = AppUser.objects.get(email=email)
         except AppUser.DoesNotExist:
-            raise serializers.ValidationError("User not found.")
+            raise serializers.ValidationError({"detail":"User not found."})
 
         if not user.check_password(password):
-            raise serializers.ValidationError("Invalid email or password.")
+            raise serializers.ValidationError({"detail":"Invalid email or password."})
 
         return {"message": "Login successful"}
 
