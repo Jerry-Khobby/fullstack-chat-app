@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     profile_picture: null,
@@ -58,6 +60,7 @@ const Signup = () => {
           password: "",
           confirmPassword: "",
         });
+        navigate("/chat");
       } else {
         setMessage({
           type: "error",
@@ -184,7 +187,6 @@ const Signup = () => {
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-              <option value="other">Other</option>
             </select>
           </div>
           <div className="mb-4">
@@ -226,7 +228,7 @@ const Signup = () => {
             className="w-full px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
           >
             {loading ? (
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
               "Signup"
             )}
