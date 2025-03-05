@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth import get_user_model 
 from django.contrib.auth import authenticate
 from .models import AppUser,ChatRoom,Message,MessageAttachment
 class UserSerializer(serializers.ModelSerializer):
@@ -10,27 +10,28 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password', 'profile_picture', 'date_of_birth', 'gender']
 
     def create(self, validated_data):
-        """Hash password before saving"""
-        validated_data["password"] = make_password(validated_data["password"])
-        return super().create(validated_data)
+        """Use create_user to ensure password is hashed properly"""
+        return AppUser.objects.create_user(**validated_data)
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        """Validate user credentials"""
         email = data.get("email")
         password = data.get("password")
+        User = get_user_model()
+
         try:
-            user = AppUser.objects.get(email=email)
-        except AppUser.DoesNotExist:
-            raise serializers.ValidationError({"detail":"User not found."})
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid credentials")
 
-        if not user.check_password(password):
-            raise serializers.ValidationError({"detail":"Invalid email or password."})
+        if not user.check_password(password):  # Compare hashed passwords
+            raise serializers.ValidationError("Invalid credentials")
 
-        return {"message": "Login successful"}
+        return {"email": user.email, "password": password}
 
 
 #I want to create the serializer for the chatroom and message 

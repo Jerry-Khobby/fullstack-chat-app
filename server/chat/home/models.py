@@ -34,7 +34,7 @@ class AppUser(AbstractUser):
         related_name="appuser_permissions",  # Unique related_name
         related_query_name="appuser",
     )
-    
+    USERNAME_FIELD = 'email' #this tells Django to use email for authentications. 
     def __str__(self):
         return self.username
     
