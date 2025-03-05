@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "./sidebar";
 import ChatContent from "./chatcontent";
-/* import { FaChevronLeft } from "react-icons/fa";
-import EmojiPicker from "emoji-picker-react"; */
+import { useNavigate } from "react-router-dom";
+import backendUrl from "./backendUrl";
 
 const ChatPage = () => {
+  const navigate = useNavigate();
   const [activeChat, setActiveChat] = useState(null);
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
   const [message, setMessage] = useState("");
@@ -16,6 +17,58 @@ const ChatPage = () => {
   const emojiButtonRef = useRef(null); // Reference for the emoji button
   const dropUpShareRef = useRef(null);
   const dropUpShare = useRef(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const accessToken = localStorage.getItem("access_token");
+      const refreshToken = localStorage.getItem("refresh_token");
+
+      if (!accessToken) {
+        navigate("/login");
+        return;
+      }
+
+      // ✅ Check if token is expired
+      const isTokenExpired = (token) => {
+        try {
+          const parts = token.split(".");
+          if (parts.length < 2) return true; // Invalid token
+          const payload = JSON.parse(atob(parts[1])); // Decode JWT
+          return payload.exp * 1000 < Date.now(); // Expiry check
+        } catch (e) {
+          return true; // Invalid token
+        }
+      };
+
+      if (isTokenExpired(accessToken)) {
+        if (refreshToken) {
+          try {
+            const response = await fetch(`${backendUrl}/api/token/refresh/`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ refresh: refreshToken }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+              localStorage.setItem("access_token", data.access);
+            } else {
+              localStorage.clear();
+              navigate("/login");
+            }
+          } catch (e) {
+            localStorage.clear();
+            navigate("/login");
+          }
+        } else {
+          localStorage.clear();
+          navigate("/login");
+        }
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

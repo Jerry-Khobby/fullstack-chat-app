@@ -1,10 +1,8 @@
-from rest_framework import serializers
-from django.contrib.auth import get_user_model 
+from rest_framework import serializers 
 from django.contrib.auth import authenticate
 from .models import AppUser,ChatRoom,Message,MessageAttachment
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-
     class Meta:
         model = AppUser
         fields = ['id', 'username', 'email', 'password', 'profile_picture', 'date_of_birth', 'gender']
@@ -21,17 +19,13 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, data):
         email = data.get("email")
         password = data.get("password")
-        User = get_user_model()
-
         try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Invalid credentials")
+            user =AppUser.objects.get(email=email)
+            if user.check_password(password):
+                return {"user": user}
+        except AppUser.DoesNotExist:
+            raise serializers.ValidationError("User does not exist")
 
-        if not user.check_password(password):  # Compare hashed passwords
-            raise serializers.ValidationError("Invalid credentials")
-
-        return {"email": user.email, "password": password}
 
 
 #I want to create the serializer for the chatroom and message 

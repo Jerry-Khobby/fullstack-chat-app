@@ -34,7 +34,12 @@ const Login = () => {
       if (response.ok) {
         setSuccess(data.message);
         setFormData({ email: "", password: "" });
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("access_token", response.access_token);
+        localStorage.setItem("refresh_token", response.refresh_token);
+
+        fetch.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${data.access_token}`;
         navigate("/chat");
       } else {
         setError(data.detail || "Invalid credentials");

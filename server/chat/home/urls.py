@@ -3,6 +3,8 @@ from django.urls import path
 from .views import *
 from django.conf.urls.static import static
 
+
+
 urlpatterns = [
     #start to define the urls for the cake app 
     path("signup/",RegisterUserView.as_view(),name="create_user"),
